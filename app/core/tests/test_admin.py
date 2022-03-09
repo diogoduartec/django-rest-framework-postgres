@@ -14,7 +14,6 @@ class AdminSiteTests(TestCase):
             password='password123'
         ) 
         
-        print('session', self.client.session.session_key)
         self.client.force_login(self.admin_user)
 
         self.assertTrue(self.admin_user.is_authenticated)
@@ -28,8 +27,21 @@ class AdminSiteTests(TestCase):
     def test_users_listed(self):
         """Tests that users are listed on user page"""
         url = reverse('admin:core_user_changelist')
-        print('session', self.client.session.session_key)
         response = self.client.get(url)
 
         self.assertContains(response, self.user.name)
         self.assertContains(response, self.user.email)
+
+    def test_user_change_page(self):
+        """Test tha the user edit page works"""
+        url = reverse('admin:core_user_change', args=[self.user.id])
+        res = self.client.get(url)
+
+        self.assertEqual(res.status_code, 200)
+
+    def test_create_user_page(self):
+        """Test that the crate user page works"""
+        url = reverse('admin:core_user_add')
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
