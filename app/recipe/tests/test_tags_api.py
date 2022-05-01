@@ -19,7 +19,7 @@ class PublicTagsApiTests(TestCase):
     def test_login_required(self):
         response = self.client.get(TAGS_URL)
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
 class PrivateTagsAPITests(TestCase):
@@ -45,7 +45,7 @@ class PrivateTagsAPITests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, serializer.data)
 
-    def test_retrieve_tags(self):
+    def test_retrieve_tags_is_limited_to_authenticated_user(self):
         user2 = get_user_model().objects.create_user(
             'othertest@tmail.com',
             'qwerty1123'
