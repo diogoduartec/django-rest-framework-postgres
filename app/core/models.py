@@ -1,4 +1,4 @@
-from pyexpat import model
+from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import (
     AbstractBaseUser,
@@ -9,9 +9,10 @@ from django.contrib.auth.models import (
 class UserManager(BaseUserManager):
     def create_user(self, email, password=None, **kwargs):
         if not email:
-            raise ValueError('users must have not none email address') 
+            raise ValueError('users must have not none email address')
         user = self.model(email=self.normalize_email(email), **kwargs)
         user.set_password(password)
+        user.is_active = True
         user.save(using=self._db)
 
         return user
@@ -20,7 +21,6 @@ class UserManager(BaseUserManager):
         user = self.create_user(email, password)
         user.is_staff = True
         user.is_superuser = True
-        user.is_active = True
         user.save(using=self._db)
 
         return user
@@ -32,5 +32,16 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
 
     objects = UserManager()
-    
+
     USERNAME_FIELD = 'email'
+
+
+class Tag(models.Model):
+    name = models.CharField(max_length=255)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+    )
+
+    def __str__(self):
+        return self.name
