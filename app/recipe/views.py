@@ -7,7 +7,7 @@ from core.models import Tag
 from recipe import serialzers
 
 
-class TagView(viewsets.GenericViewSet, mixins.ListModelMixin):
+class TagView(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMixin):
     serializer_class = serialzers.TagSerializer
     authentication_class = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
@@ -15,3 +15,6 @@ class TagView(viewsets.GenericViewSet, mixins.ListModelMixin):
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user).order_by('-name')
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
