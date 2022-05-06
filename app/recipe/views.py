@@ -13,7 +13,10 @@ class BaseRecipeViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.C
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
-        return self.queryset.filter(user=self.request.user).order_by('-name')
+        assigned_only = int(self.request.query_params.get('assigned_only', 0))
+        if assigned_only:
+            self.queryset = self.queryset.filter(recipe__isnull=False)
+        return self.queryset.filter(user=self.request.user).order_by('-name').distinct()
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -35,8 +38,22 @@ class RecipeView(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
+    def _params_to_ints(self, qs):
+        """Convert a list of strings IDs to a list of integers"""
+        return list(map(int, qs.split(',')))
+
     def get_queryset(self):
-        return self.queryset.filter(user=self.request.user).order_by('-id')
+        tags = self.request.query_params.get('tags')
+        ingredients = self.request.query_params.get('ingredients')
+        if tags:
+            tag_ids = self._params_to_ints(tags)
+            self.queryset = self.queryset.filter(tags__id__in=tag_ids)
+
+        if ingredients:
+            ingredient_ids = self._params_to_ints(ingredients)
+            self.queryset = self.queryset.filter(ingredients__id__in=ingredient_ids)
+
+        return self.queryset.filter(user=self.request.user)
 
     def get_serializer_class(self):
         if self.action == 'retrieve':
