@@ -11,6 +11,14 @@ In this projects I built some features related to restaurants recipes.
 Poetry is a tool for dependency management and packaging in Python. It allows you to declare the libraries your project depends on and it will manage (install/update) them for you. It's like a pip + venv, all together.
 
 
+## Environment variables
+Add a .env file with the following variables:
+```bash
+POSTGRES_DB=<database name>
+POSTGRES_USER=<database user>
+POSTGRES_PASSWORD=<database password>
+```
+
 ## How to run using manage.py
 Activate virtual environment
 ```bash
